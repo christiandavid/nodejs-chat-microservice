@@ -4,7 +4,7 @@
   <head>
     <% include ../partials/head %>
     <link href="/css/chat.css" rel="stylesheet">
-    <title>Chat</title>
+    <title><%= locals.title %> - Chat</title>
   </head>
   <body>
     <% include ../partials/menu %>
@@ -15,7 +15,11 @@
           <span class="badge roombadge badge-<%= colors[Math.floor(Math.random() * colors.length)] %>"><%= roomName %></span> room!
         </div>
         <div id="feedback"></div>
-        <ul id="messages"></ul>
+        <ul id="messages">
+          <% roomMessages.forEach((msg) => { %>
+            <li><small class="text-muted"><%= msg.user %>:</small> <%= msg.message %></li>
+          <% }); %>
+        </ul>
       </div>
       <div class="row">
           <div class="col-lg-6">
@@ -34,6 +38,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
     <script>
       let timeout;
+      // TODO: Not yet implemented
+      const user = 'Tester';
       const room = '<%= roomName %>';
       const socket = io('<%= socketUrl %>');
       $("form").submit(() => {
@@ -41,7 +47,7 @@
 
         clearTimeout(timeout);
         socket.emit("stopTyping", "");
-        socket.emit("message", { msg, room });
+        socket.emit("message", { msg, room, user });
         
         $("#m").val("");
         return false;

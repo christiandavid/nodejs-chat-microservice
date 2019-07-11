@@ -27,6 +27,7 @@ db.connect(config.db.dsn)
   });
 
 server.on('listening', () => {
+  const messageService = service.get('messageService');
   io.adapter(redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT }));
   // Namespace
   const nsp = io.of('/nsp');
@@ -49,6 +50,12 @@ server.on('listening', () => {
     socket.on('message', (data) => {
       log.info(`Message: ${data.msg}`);
       nsp.in(data.room).emit('message', data.msg);
+
+      if (data.user && data.room && data.msg) {
+        messageService.save(data.user, data.room, data.msg)
+          .then((message) => log.info(`Saved Message: ${message}`))
+          .catch((err) => log.fatal(err));
+      }
     });
 
     socket.on('disconnect2', (data) => {

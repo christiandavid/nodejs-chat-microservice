@@ -5,19 +5,23 @@ const router = express.Router();
 
 module.exports = (params) => {
   router.get('/:roomName', async (req, res, next) => {
-    const { chat } = params;
+    const { chat, message } = params;
+    const { roomName } = req.params;
     try {
-      const { port, path } = url.parse(await chat.getChatUrl());
-      const socketUrl = `http://localhost:${port}${path}`;
-
-      const roomDetail = await chat.getRoomDetail(req.params.roomName);
+      const roomDetail = await chat.getRoomDetail(roomName);
       if (roomDetail === false) {
         return res.redirect('/rooms?error=true');
       }
 
+      const { port, path } = url.parse(await chat.getChatUrl());
+      const socketUrl = `http://localhost:${port}${path}`;
+
+      const roomMessages = await message.getLastRoomMessages(roomName);
+
       return res.render('pages/chat', {
-        roomName: req.params.roomName,
+        roomName,
         socketUrl,
+        roomMessages,
       });
     } catch (err) {
       return next(err);

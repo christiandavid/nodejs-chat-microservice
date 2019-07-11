@@ -6,12 +6,14 @@ const helmet = require('helmet');
 const conf = require('./config');
 const routes = require('./routes');
 const Chat = require('./services/Chat');
+const Message = require('./services/Message');
 
 const app = express();
 const config = conf[app.get('env')];
 
 const log = config.log();
 const chat = new Chat(config);
+const message = new Message(config);
 
 // Add a request logging
 if (app.get('env') === 'development') {
@@ -32,7 +34,7 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/favicon.ico', (req, res) => res.sendStatus(204));
 
-app.use('/', routes({ chat }));
+app.use('/', routes({ chat, message }));
 
 app.use((req, res, next) => next(createError(404, 'File not found')));
 

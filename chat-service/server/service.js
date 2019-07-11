@@ -1,8 +1,10 @@
 const express = require('express');
 const helmet = require('helmet');
 const createError = require('http-errors');
+const bodyParser = require('body-parser');
 const routes = require('./routes');
 const RoomService = require('./services/RoomService');
+const MessageService = require('./services/MessageService');
 
 const service = express();
 
@@ -17,13 +19,16 @@ module.exports = (config) => {
     });
   }
   service.use(helmet());
+  service.use(bodyParser.urlencoded({ extended: true }));
 
   service.get('/favicon.ico', (req, res) => res.sendStatus(204));
   service.get('/robots.txt', (req, res) => res.sendStatus(204));
 
   const roomService = new RoomService();
+  const messageService = new MessageService();
 
-  service.use('/', routes({ roomService }));
+  service.set('messageService', messageService);
+  service.use('/', routes({ roomService, messageService }));
 
   // catch 404 and forward to error handler
   service.use((req, res, next) => next(createError(404, 'File not found')));
