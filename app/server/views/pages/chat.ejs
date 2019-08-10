@@ -10,6 +10,7 @@
     <% include ../partials/menu %>
     <div class="container-fluid">
       <div class="row">
+        <div id="feedback"></div>
         <ul id="messages"></ul>
       </div>
       <div class="row">
@@ -27,5 +28,46 @@
     </div>
     <% include ../partials/scripts %>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+    <script>
+      const room = 'jobsity';
+      // Testing the port is dinamic
+      const socket = io('http://localhost:49433/nsp');
+      $("form").submit(() => {
+        let msg = $("#m").val();
+        socket.emit("message", { msg, room });
+        $("#m").val("");
+        return false;
+      });
+
+      let timeout;
+      $("#m").keypress((e) => {
+        if (e.keyCode != 13)  {
+          // Should be id but keep it simple
+          socket.emit("typing", { username: 'tester' });
+        }
+      }).keyup(() => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          socket.emit("stopTyping", "");
+        }, 2000);
+      });
+
+      socket.on("connect", () => {
+        socket.emit("join", { room: room });
+      });
+
+      socket.on("message", (msg) => {
+        $("#messages").append($('<li>').text(msg));
+      });
+
+      socket.on("typing", (data) => {
+        console.log(`${data.username} is typing a message...`);
+        $("#feedback").html(`<p><i>${data.username} is typing a message...</i></p>`);
+      });
+
+      socket.on("notifyStopTyping", () =>  {
+        $("#feedback").html("");
+      });
+    </script>
 </body>
 </html>

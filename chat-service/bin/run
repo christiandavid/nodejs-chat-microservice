@@ -6,9 +6,40 @@ const log = config.log();
 const service = require('../server/service')(config);
 
 const server = http.createServer(service);
+// eslint-disable-next-line import/order
+const io = require('socket.io')(server);
 
 // Random port
 server.listen(0);
+
+// Namespace
+const nsp = io.of('/nsp');
+io.origins(['http://localhost:3000']);
+nsp.on('connection', (socket) => {
+  socket.on('join', (data) => {
+    socket.join(data.room);
+    nsp.in(data.room).emit('message', `New user joined ${data.room} room!`);
+  });
+
+  socket.on('typing', (data) => {
+    log.info('User typing');
+    socket.broadcast.emit('typing', { username: data.username });
+  });
+
+  socket.on('stopTyping', () => {
+    socket.broadcast.emit('notifyStopTyping');
+  });
+
+  socket.on('message', (data) => {
+    log.info(`Message: ${data.msg}`);
+    nsp.in(data.room).emit('message', data.msg);
+  });
+
+  socket.on('disconnect', () => {
+    log.info('User disconnected');
+    nsp.emit('message', 'user disconnected');
+  });
+});
 
 server.on('listening', () => {
   process.on('uncaughtException', async () => {

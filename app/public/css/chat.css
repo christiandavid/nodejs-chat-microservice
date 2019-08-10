@@ -1,4 +1,4 @@
 form { padding: 20px; position: fixed; bottom: 0; width: 100%; padding-right: 50px;}
 #messages { list-style-type: none; margin: 0; padding: 0; width: 100%;}
-#messages li { padding: 5px 10px; }
+#messages li, #feedback { padding: 5px 10px; }
 #messages li:nth-child(odd) { background: #eee;} 
