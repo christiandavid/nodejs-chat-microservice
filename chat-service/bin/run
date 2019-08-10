@@ -2,6 +2,9 @@ const axios = require('axios');
 const http = require('http');
 const redis = require('socket.io-redis');
 
+const db = require('../server/lib/db');
+const seedRoom = require('../server/seeds/rooms');
+
 const config = require('../config')[process.env.NODE_ENV || 'development'];
 
 const log = config.log();
@@ -11,41 +14,49 @@ const server = http.createServer(service);
 // eslint-disable-next-line import/order
 const io = require('socket.io')(server);
 
-
-// Should be a random port
-server.listen(process.env.PORT);
-
-io.adapter(redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT }));
-// Namespace
-const nsp = io.of('/nsp');
-io.origins([`http://localhost:${process.env.APP_PORT}`]);
-nsp.on('connection', (socket) => {
-  socket.on('join', (data) => {
-    socket.join(data.room);
-    nsp.in(data.room).emit('message', `New user joined ${data.room} room!`);
+// Connect to Database
+db.connect(config.db.dsn)
+  .then(() => {
+    log.info('Connected to MongoDB');
+    seedRoom();
+    // Should be a random port
+    server.listen(process.env.PORT);
+  })
+  .catch((err) => {
+    log.fatal(err);
   });
-
-  socket.on('typing', (data) => {
-    log.info('User typing');
-    socket.broadcast.emit('typing', { username: data.username });
-  });
-
-  socket.on('stopTyping', () => {
-    socket.broadcast.emit('notifyStopTyping');
-  });
-
-  socket.on('message', (data) => {
-    log.info(`Message: ${data.msg}`);
-    nsp.in(data.room).emit('message', data.msg);
-  });
-
-  socket.on('disconnect', () => {
-    log.info('User disconnected');
-    nsp.emit('message', 'user disconnected');
-  });
-});
 
 server.on('listening', () => {
+  io.adapter(redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT }));
+  // Namespace
+  const nsp = io.of('/nsp');
+  io.origins([`http://localhost:${process.env.APP_PORT}`]);
+  nsp.on('connection', (socket) => {
+    socket.on('join', (data) => {
+      socket.join(data.room);
+      nsp.in(data.room).emit('message', `New user joined ${data.room} room!`);
+    });
+
+    socket.on('typing', (data) => {
+      log.info('User typing');
+      socket.broadcast.to(data.room).emit('typing', { username: data.username });
+    });
+
+    socket.on('stopTyping', (data) => {
+      socket.broadcast.to(data.room).emit('notifyStopTyping');
+    });
+
+    socket.on('message', (data) => {
+      log.info(`Message: ${data.msg}`);
+      nsp.in(data.room).emit('message', data.msg);
+    });
+
+    socket.on('disconnect2', (data) => {
+      log.info(`User disconnected in ${data.room} room!`);
+      nsp.in(data.room).emit('message', 'User disconnected');
+    });
+  });
+
   // Adds this service to the Service Registry
   const registerService = () => axios.put(`http://localhost:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
     .catch((err) => log.fatal(err));

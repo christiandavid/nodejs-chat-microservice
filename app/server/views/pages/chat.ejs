@@ -10,6 +10,10 @@
     <% include ../partials/menu %>
     <div class="container-fluid">
       <div class="row">
+        <% const colors = ['primary', 'secondary', 'warning', 'dark']; %>
+        <div class="room">Welcome to 
+          <span class="badge roombadge badge-<%= colors[Math.floor(Math.random() * colors.length)] %>"><%= roomName %></span> room!
+        </div>
         <div id="feedback"></div>
         <ul id="messages"></ul>
       </div>
@@ -30,8 +34,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
     <script>
       let timeout;
-      const room = 'jobsity';
-      // Testing the port is dinamic
+      const room = '<%= roomName %>';
       const socket = io('<%= socketUrl %>');
       $("form").submit(() => {
         let msg = $("#m").val();
@@ -47,27 +50,27 @@
       $("#m").keypress((e) => {
         if (e.keyCode != 13)  {
           // Should be id but keep it simple
-          socket.emit("typing", { username: 'tester' });
+          socket.emit("typing", { username: 'tester', room });
         }
       }).keyup(() => {
         clearTimeout(timeout);
         timeout = setTimeout(() => {
-          socket.emit("stopTyping", "");
+          socket.emit("stopTyping", { room });
         }, 2000);
       });
+      window.onbeforeunload = function () {
+        socket.emit("disconnect2", { room });
+      }
 
       socket.on("connect", () => {
-        socket.emit("join", { room: room });
+        socket.emit("join", { room });
       });
-
       socket.on("message", (msg) => {
         $("#messages").append($('<li>').text(msg));
       });
-
       socket.on("typing", (data) => {
-        $("#feedback").html(`<p><i>${data.username} is typing a message...</i></p>`);
+        $("#feedback").html(`<p>${data.username} is typing a message...</p>`);
       });
-
       socket.on("notifyStopTyping", () =>  {
         $("#feedback").html("");
       });

@@ -11,6 +11,22 @@ class ChatService {
     return `http://${ip}:${port}/nsp`;
   }
 
+  async getRooms() {
+    const { ip, port } = await this.getService('chat-service');
+    return this.callService({
+      method: 'get',
+      url: `http://${ip}:${port}/rooms`,
+    });
+  }
+
+  async getRoomDetail(roomName) {
+    const { ip, port } = await this.getService('chat-service');
+    return this.callService({
+      method: 'get',
+      url: `http://${ip}:${port}/rooms/${roomName}`,
+    });
+  }
+
   // eslint-disable-next-line class-methods-use-this
   async callService(requestOptions) {
     try {
@@ -22,8 +38,9 @@ class ChatService {
   }
 
   async getService(servicename) {
-    const response = await axios.get(`${this.serviceRegistryUrl}/get/${servicename}/${this.serviceVersionId}`);
-    return response.data;
+    const svResponse = await axios.get(`${this.serviceRegistryUrl}/get/${servicename}/${this.serviceVersionId}`);
+    const response = svResponse.data;
+    return response;
   }
 }
 
