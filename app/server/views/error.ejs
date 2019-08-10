@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <% include partials/head %>
+    <title>Error</title>
+  </head>
+  <body class="text-center">
+    <%if (error) { %>
+      <pre>
+        <%= error.stack %>
+      </pre>
+    <% } %>
+  </body>
+</html>

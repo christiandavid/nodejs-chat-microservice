@@ -1,0 +1,37 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <% include ../partials/head %>
+    <title>Rooms</title>
+    <link href="/css/rooms.css" rel="stylesheet">
+  </head>
+  <body>
+    <% include ../partials/menu %>
+    <div class="room-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+      <h1 class="display-4">Rooms</h1>
+      <p class="lead">Select a Room to enter our chat.</p>
+    </div>
+    <div class="container">
+      <div class="card-deck mb-3 text-center">
+        
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Chat chatname</h4>
+          </div>
+          <div class="card-body">
+            <h1 class="card-title pricing-card-title">
+              <small class="text-muted">Talk about</small>
+              chatname
+            </h1>
+            <a href="/chat/chatname" class="btn btn-lg btn-block btn-primary">Let's talk</a>
+          </div>
+        </div>
+
+      </div>
+      <footer class="pt-4 my-md-5 pt-md-5 border-top">
+        <% include ../partials/footer %>
+      </footer>
+    </div>
+</body>
+</html>
