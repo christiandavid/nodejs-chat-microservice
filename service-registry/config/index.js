@@ -11,19 +11,19 @@ module.exports = {
   production: {
     name,
     version,
-    serviceTimeout: 30,
+    serviceTimeout: process.env.SERVICE_TIMEOUT,
     log: () => getLogger(name, version, 'info'),
   },
   development: {
     name,
     version,
-    serviceTimeout: 30,
+    serviceTimeout: process.env.SERVICE_TIMEOUT,
     log: () => getLogger(name, version, 'debug'),
   },
   test: {
     name,
     version,
-    serviceTimeout: 30,
+    serviceTimeout: process.env.SERVICE_TIMEOUT,
     log: () => getLogger(name, version, 'fatal'),
   },
 };
