@@ -9,7 +9,7 @@ const server = http.createServer(service);
 // eslint-disable-next-line import/order
 const io = require('socket.io')(server);
 
-// Random port
+// Should be a random port
 server.listen(0);
 
 // Namespace
