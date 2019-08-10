@@ -4,6 +4,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const conf = require('./config');
+const routes = require('./routes');
 
 const app = express();
 const config = conf[app.get('env')];
@@ -29,19 +30,7 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/favicon.ico', (req, res) => res.sendStatus(204));
 
-// Index page
-app.get('/', (req, res) => {
-  res.render('pages/index');
-});
-app.get('/signup', (req, res) => {
-  res.render('pages/signup');
-});
-app.get('/rooms', (req, res) => {
-  res.render('pages/rooms');
-});
-app.get('/chat/', (req, res) => {
-  res.render('pages/chat');
-});
+app.use('/', routes());
 
 app.use((req, res, next) => next(createError(404, 'File not found')));
 
