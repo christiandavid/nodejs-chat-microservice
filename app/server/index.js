@@ -7,13 +7,16 @@ const conf = require('./config');
 const routes = require('./routes');
 const Chat = require('./services/Chat');
 const Message = require('./services/Message');
+const CircuitBreaker = require('./lib/CircuitBreaker');
 
 const app = express();
 const config = conf[app.get('env')];
 
 const log = config.log();
-const chat = new Chat(config);
-const message = new Message(config);
+
+const circuitBreaker = new CircuitBreaker(config);
+const chat = new Chat(config, circuitBreaker);
+const message = new Message(config, circuitBreaker);
 
 // Add a request logging
 if (app.get('env') === 'development') {

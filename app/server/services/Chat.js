@@ -1,9 +1,13 @@
+const url = require('url');
 const axios = require('axios');
+const crypto = require('crypto');
 
 class ChatService {
-  constructor({ serviceRegistryUrl, serviceVersionId }) {
+  constructor({ serviceRegistryUrl, serviceVersionId }, circuitBreaker) {
     this.serviceRegistryUrl = serviceRegistryUrl;
     this.serviceVersionId = serviceVersionId;
+    this.circuitBreaker = circuitBreaker;
+    this.cache = {};
   }
 
   async getChatUrl() {
@@ -27,14 +31,23 @@ class ChatService {
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
   async callService(requestOptions) {
-    try {
-      const response = await axios(requestOptions);
-      return response.data;
-    } catch (err) {
-      return false;
+    const parsedUrl = url.parse(requestOptions.url);
+    const cacheKey = crypto.createHash('md5').update(requestOptions.method + parsedUrl.path).digest('hex');
+
+    const result = await this.circuitBreaker.callService(requestOptions);
+
+    if (!result) {
+      if (this.cache[cacheKey]) {
+        return this.cache[cacheKey];
+      }
+      return null;
     }
+    if (requestOptions.method === 'get') {
+      this.cache[cacheKey] = result;
+    }
+
+    return result;
   }
 
   async getService(servicename) {

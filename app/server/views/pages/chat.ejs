@@ -16,7 +16,7 @@
         </div>
         <div id="feedback"></div>
         <ul id="messages">
-          <% roomMessages.forEach((msg) => { %>
+          <% roomMessages && roomMessages.forEach((msg) => { %>
             <li><small class="text-muted"><%= msg.user %>:</small> <%= msg.message %></li>
           <% }); %>
         </ul>

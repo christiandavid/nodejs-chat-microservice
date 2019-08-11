@@ -23,7 +23,7 @@
     <div class="container">
       <div class="card-deck mb-3 text-center">
         <% const colors = ['primary', 'secondary', 'warning', 'dark']; %>
-        <% rooms.forEach((room) => { %>
+        <% rooms && rooms.forEach((room) => { %>
           <% let roomName = room.name.charAt(0).toUpperCase() + room.name.slice(1); %>
           <div class="card mb-4 shadow-sm">
             <div class="card-header">
