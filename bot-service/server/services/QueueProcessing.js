@@ -14,6 +14,7 @@ class QueueProcessing {
   processQueue(message) {
     const stockAdapter = new StockAdapter(message);
     const url = stockAdapter.getUrl();
+    this.log.debug(`Url: ${url}, message ${message}`);
 
     return new Promise((resolve) => {
       if (url !== false) {

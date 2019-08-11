@@ -4,7 +4,8 @@ const MessageModel = require('../models/MessageModel');
 class RoomService {
   async getLastRoomMessages(room, limit = 50) {
     try {
-      return await MessageModel.find({ room }, 'user message -_id').sort({ createdAt: 1 }).limit(limit).exec();
+      const messages = await MessageModel.find({ room }, 'user message -_id').sort({ createdAt: -1 }).limit(limit).exec();
+      return messages ? messages.reverse() : messages;
     } catch (err) {
       return err;
     }

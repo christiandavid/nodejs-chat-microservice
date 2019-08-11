@@ -42,6 +42,10 @@
       const user = 'Tester';
       const room = '<%= roomName %>';
       const socket = io('<%= socketUrl %>');
+      function scroll() {
+        var div = $("#messages");
+        div.scrollTop(div.prop('scrollHeight'));
+      }
       $("form").submit(() => {
         let msg = $("#m").val();
 
@@ -73,7 +77,21 @@
       });
       socket.on("message", (msg) => {
         $("#messages").append($('<li>').text(msg));
+        scroll();
       });
+      socket.on("botreply", (msg) => {
+        $("#messages").append($('<li class="alert alert-info" role="alert">').text(msg));
+        scroll();
+      });
+      socket.on("botnotcommand", (msg) => {
+        $("#messages").append($('<li class="alert alert-danger" role="alert">').text(msg));
+        scroll();
+      });
+      socket.on("botnotfound", (msg) => {
+        $("#messages").append($('<li class="alert alert-warning" role="alert">').text(msg));
+        scroll();
+      });
+
       socket.on("typing", (data) => {
         $("#feedback").html(`<p>${data.username} is typing a message...</p>`);
       });

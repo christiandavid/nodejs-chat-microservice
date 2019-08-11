@@ -1,6 +1,7 @@
 const axios = require('axios');
 const http = require('http');
 const redis = require('socket.io-redis');
+const Queue = require('../server/lib/Queue');
 
 const db = require('../server/lib/db');
 const seedRoom = require('../server/seeds/rooms');
@@ -29,8 +30,10 @@ db.connect(config.db.dsn)
 server.on('listening', () => {
   const messageService = service.get('messageService');
   io.adapter(redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT }));
+
   // Namespace
   const nsp = io.of('/nsp');
+  const queue = new Queue(config, nsp);
   io.origins([`http://localhost:${process.env.APP_PORT}`]);
   nsp.on('connection', (socket) => {
     socket.on('join', (data) => {
@@ -48,15 +51,24 @@ server.on('listening', () => {
     });
 
     socket.on('message', (data) => {
-      log.info(`Message: ${data.msg}`);
-      nsp.in(data.room).emit('message', data.msg);
+      const { user, room, msg } = data;
+      log.info(`Message: ${msg}`);
+      nsp.in(data.room).emit('message', msg);
 
-      if (data.user && data.room && data.msg) {
-        messageService.save(data.user, data.room, data.msg)
-          .then((message) => log.info(`Saved Message: ${message}`))
-          .catch((err) => log.fatal(err));
+      if (user && room && msg) {
+        // Detect * command
+        if (/\/(.*?)=(.*?)($|\s)/g.test(msg)) {
+          // Send to queue
+          queue.send(user, room, msg);
+        } else {
+          // Save in database
+          messageService.save(user, room, msg)
+            .then((message) => log.info(`Saved Message: ${message}`))
+            .catch((err) => log.fatal(err));
+        }
       }
     });
+    queue.check(nsp);
 
     socket.on('disconnect2', (data) => {
       log.info(`User disconnected in ${data.room} room!`);

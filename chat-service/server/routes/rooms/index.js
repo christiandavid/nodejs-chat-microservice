@@ -14,7 +14,7 @@ module.exports = (params) => {
     const roomDetails = await roomService.getDetails(req.params.roomName);
 
     if (!roomDetails) {
-      res.status(404).send({ error: 'Not found' });
+      return res.status(404).send({ error: 'Not found' });
     }
 
     return res.send(roomDetails);
