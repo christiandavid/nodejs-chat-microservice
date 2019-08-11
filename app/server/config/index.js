@@ -13,26 +13,17 @@ module.exports = {
     log: loggers.production,
     serviceRegistryUrl: `http://localhost:${process.env.SVC_REGISTRY_PORT}`,
     serviceVersionId: '1.0.0',
-    db: {
-      dsn: process.env.DB_DSN_PRODUCTION,
-    },
   },
   development: {
     siteName: 'ChatApp [Development]',
     log: loggers.development,
     serviceRegistryUrl: `http://localhost:${process.env.SVC_REGISTRY_PORT}`,
     serviceVersionId: '1.0.0',
-    db: {
-      dsn: process.env.DB_DSN_DEVELOPMENT,
-    },
   },
   test: {
     siteName: 'ChatApp [Test]',
     log: loggers.test,
     serviceRegistryUrl: `http://localhost:${process.env.SVC_REGISTRY_PORT}`,
     serviceVersionId: '1.0.0',
-    db: {
-      dsn: process.env.DB_DSN_TEST,
-    },
   },
 };

@@ -4,16 +4,14 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const mongoose = require('mongoose');
 const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
+const RedisStore = require('connect-redis')(session);
 const conf = require('./config');
 const routes = require('./routes');
 const User = require('./services/User');
 const Chat = require('./services/Chat');
 const Message = require('./services/Message');
 const CircuitBreaker = require('./lib/CircuitBreaker');
-const db = require('./lib/db');
 
 const app = express();
 const config = conf[app.get('env')];
@@ -56,14 +54,18 @@ if (app.get('env') === 'production') {
     cookie: { secure: true },
     resave: true,
     saveUninitialized: false,
-    store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    store: new RedisStore({
+      url: process.env.REDIS_HOST,
+    }),
   }));
 } else {
   app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: true,
     saveUninitialized: false,
-    store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    store: new RedisStore({
+      url: process.env.REDIS_HOST,
+    }),
   }));
 }
 
@@ -85,16 +87,10 @@ app.use((err, req, res, next) => {
   return res.render('error');
 });
 
-db.connect(config.db.dsn)
-  .then(() => {
-    log.info('Connected to MongoDB');
-    // eslint-disable-next-line func-names
-    app.listen(process.env.PORT, function () {
-      log.info(`Listening on port ${this.address().port} in ${app.get('env')} mode.`);
-    });
-  })
-  .catch((err) => {
-    log.fatal(err);
-  });
+
+// eslint-disable-next-line func-names
+app.listen(process.env.PORT, function () {
+  log.info(`Listening on port ${this.address().port} in ${app.get('env')} mode.`);
+});
 
 module.export = app;
