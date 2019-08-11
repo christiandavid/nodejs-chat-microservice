@@ -5,6 +5,7 @@ const Queue = require('../server/lib/Queue');
 
 const db = require('../server/lib/db');
 const seedRoom = require('../server/seeds/rooms');
+const UserService = require('../server/services/UserService');
 
 const config = require('../config')[process.env.NODE_ENV || 'development'];
 
@@ -28,6 +29,21 @@ db.connect(config.db.dsn)
   });
 
 server.on('listening', () => {
+  const userService = new UserService(config);
+
+  const getUserName = async (id) => {
+    try {
+      const userAccount = await userService.findById(id);
+      if (!userAccount || userAccount.user.error) {
+        return false;
+      }
+
+      return userAccount.user.username;
+    } catch (err) {
+      return false;
+    }
+  };
+
   const messageService = service.get('messageService');
   io.adapter(redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT }));
 
@@ -38,33 +54,39 @@ server.on('listening', () => {
   nsp.on('connection', (socket) => {
     socket.on('join', (data) => {
       socket.join(data.room);
-      nsp.in(data.room).emit('message', `New user joined ${data.room} room!`);
+      nsp.in(data.room).emit('message', { message: `New user joined ${data.room} room!` });
     });
 
-    socket.on('typing', (data) => {
+    socket.on('typing', async (data) => {
       log.info('User typing');
-      socket.broadcast.to(data.room).emit('typing', { username: data.username });
+      const username = await getUserName(data.username);
+      if (username) {
+        socket.broadcast.to(data.room).emit('typing', { username });
+      }
     });
 
     socket.on('stopTyping', (data) => {
       socket.broadcast.to(data.room).emit('notifyStopTyping');
     });
 
-    socket.on('message', (data) => {
+    socket.on('message', async (data) => {
       const { user, room, msg } = data;
-      log.info(`Message: ${msg}`);
-      nsp.in(data.room).emit('message', msg);
-
       if (user && room && msg) {
-        // Detect * command
-        if (/\/(.*?)=(.*?)($|\s)/g.test(msg)) {
-          // Send to queue
-          queue.send(user, room, msg);
-        } else {
-          // Save in database
-          messageService.save(user, room, msg)
-            .then((message) => log.info(`Saved Message: ${message}`))
-            .catch((err) => log.fatal(err));
+        const username = await getUserName(user);
+        if (username) {
+          log.info(`Message: ${msg}`);
+          nsp.in(data.room).emit('message', { username, message: msg });
+
+          // Detect * command
+          if (/\/(.*?)=(.*?)($|\s)/g.test(msg)) {
+            // Send to queue
+            queue.send(username, room, msg);
+          } else {
+            // Save in database
+            messageService.save(username, room, msg)
+              .then((message) => log.info(`Saved Message: ${message}`))
+              .catch((err) => log.fatal(err));
+          }
         }
       }
     });
@@ -72,7 +94,7 @@ server.on('listening', () => {
 
     socket.on('disconnect2', (data) => {
       log.info(`User disconnected in ${data.room} room!`);
-      nsp.in(data.room).emit('message', 'User disconnected');
+      nsp.in(data.room).emit('message', { message: 'User disconnected' });
     });
   });
 

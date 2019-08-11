@@ -12,15 +12,24 @@ module.exports = {
     name,
     version,
     log: () => getLogger(name, version, 'info'),
+    db: {
+      dsn: process.env.DB_DSN_PRODUCTION,
+    },
   },
   development: {
     name,
     version,
     log: () => getLogger(name, version, 'debug'),
+    db: {
+      dsn: process.env.DB_DSN_DEVELOPMENT,
+    },
   },
   test: {
     name,
     version,
     log: () => getLogger(name, version, 'fatal'),
+    db: {
+      dsn: process.env.DB_DSN_TEST,
+    },
   },
 };

@@ -38,8 +38,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
     <script>
       let timeout;
-      // TODO: Not yet implemented
-      const user = 'Tester';
+      const user = '<%= usrId %>';
       const room = '<%= roomName %>';
       const socket = io('<%= socketUrl %>');
       function scroll() {
@@ -59,8 +58,7 @@
 
       $("#m").keypress((e) => {
         if (e.keyCode != 13)  {
-          // Should be id but keep it simple
-          socket.emit("typing", { username: 'tester', room });
+          socket.emit("typing", { username: user, room });
         }
       }).keyup(() => {
         clearTimeout(timeout);
@@ -76,19 +74,23 @@
         socket.emit("join", { room });
       });
       socket.on("message", (msg) => {
-        $("#messages").append($('<li>').text(msg));
+        if (msg.username) {
+          $("#messages").append(`<li><small class="text-muted">${msg.username}:</small> ${msg.message}`);
+        } else {
+          $("#messages").append($('<li>').text(msg.message));
+        }
         scroll();
       });
       socket.on("botreply", (msg) => {
-        $("#messages").append($('<li class="alert alert-info" role="alert">').text(msg));
+        $("#messages").append(`<li class="alert alert-info" role="alert"><small class="text-muted">${msg.username}:</small> ${msg.message}`);
         scroll();
       });
       socket.on("botnotcommand", (msg) => {
-        $("#messages").append($('<li class="alert alert-danger" role="alert">').text(msg));
+        $("#messages").append(`<li class="alert alert-danger" role="alert"><small class="text-muted">${msg.username}:</small> ${msg.message}`);
         scroll();
       });
       socket.on("botnotfound", (msg) => {
-        $("#messages").append($('<li class="alert alert-warning" role="alert">').text(msg));
+        $("#messages").append(`<li class="alert alert-warning" role="alert"><small class="text-muted">${msg.username}:</small> ${msg.message}`);
         scroll();
       });
 

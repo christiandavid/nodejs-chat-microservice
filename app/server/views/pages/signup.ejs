@@ -6,16 +6,25 @@
     <link href="/css/signin.css" rel="stylesheet">
   </head>
   <body class="text-center">
-    <form class="form-signin">
+    <form class="form-signin" action="" method="post">
       <h1 class="h3 mb-3 font-weight-normal">Sign Up</h1>
+      <% if (error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          The account already exist.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      <% } %>
       <p>Create an account by filling out the following fields</p>
       <label for="inputUser" class="sr-only">Username</label>
-      <input type="text" id="inputUser" class="form-control" placeholder="Username" required autofocus>
+      <input type="text" id="inputUser" name="username" class="form-control" placeholder="Username" required autofocus>
       <label for="inputPassword" class="sr-only">Password</label>
-      <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+      <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required>
       <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button><br>
       <p>Do you have an account? <a href="/">Sign in</a></p>
       <footer>
+        <% include ../partials/scripts %>
         <% include ../partials/footer %>
       </footer>
     </form>

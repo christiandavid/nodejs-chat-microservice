@@ -6,15 +6,32 @@
     <link href="/css/signin.css" rel="stylesheet">
   </head>
   <body class="text-center">
-    <form class="form-signin">
+    <form class="form-signin" action="" method="post">
       <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+      <% if (success) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          The account has been created.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      <% } %>
+      <% if (error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            Invalid username or password.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      <% } %>
       <label for="inputUser" class="sr-only">Username</label>
-      <input type="text" id="inputUser" class="form-control" placeholder="Username" required autofocus>
+      <input type="text" id="inputUser" name="username" class="form-control" placeholder="Username" required autofocus>
       <label for="inputPassword" class="sr-only">Password</label>
-      <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+      <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required>
       <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button><br>
       <p>Don't have an account? <a href="/users/signup">Sign up</a></p>
       <footer>
+        <% include ../partials/scripts %>
         <% include ../partials/footer %>
       </footer>
     </form>

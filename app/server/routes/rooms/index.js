@@ -2,8 +2,8 @@ const express = require('express');
 
 const router = express.Router();
 
-module.exports = (params) => {
-  router.get('/', async (req, res, next) => {
+module.exports = (params, redirectIfNotLoggedIn) => {
+  router.get('/', redirectIfNotLoggedIn, async (req, res, next) => {
     const { chat } = params;
     try {
       const rooms = await chat.getRooms();

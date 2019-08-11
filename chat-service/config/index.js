@@ -12,6 +12,8 @@ module.exports = {
     name,
     version,
     log: () => getLogger(name, version, 'info'),
+    serviceRegistryUrl: `http://localhost:${process.env.SVC_REGISTRY_PORT}`,
+    serviceVersionId: '1.0.0',
     db: {
       dsn: process.env.DB_DSN_PRODUCTION,
     },
@@ -20,6 +22,8 @@ module.exports = {
     name,
     version,
     log: () => getLogger(name, version, 'debug'),
+    serviceRegistryUrl: `http://localhost:${process.env.SVC_REGISTRY_PORT}`,
+    serviceVersionId: '1.0.0',
     db: {
       dsn: process.env.DB_DSN_DEVELOPMENT,
     },
@@ -28,6 +32,8 @@ module.exports = {
     name,
     version,
     log: () => getLogger(name, version, 'fatal'),
+    serviceRegistryUrl: `http://localhost:${process.env.SVC_REGISTRY_PORT}`,
+    serviceVersionId: '1.0.0',
     db: {
       dsn: process.env.DB_DSN_TEST,
     },

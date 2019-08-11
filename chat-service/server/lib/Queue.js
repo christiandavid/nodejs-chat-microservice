@@ -56,7 +56,7 @@ class Queue {
                 emitTo = 'botreply';
                 break;
             }
-            this.nsp.in(room).emit(emitTo, `${user}: ${message}`);
+            this.nsp.in(room).emit(emitTo, { username: user, message });
             channel.ack(msg);
             setTimeout(() => {
               this.check();

@@ -3,8 +3,8 @@ const url = require('url');
 
 const router = express.Router();
 
-module.exports = (params) => {
-  router.get('/:roomName', async (req, res, next) => {
+module.exports = (params, redirectIfNotLoggedIn) => {
+  router.get('/:roomName', redirectIfNotLoggedIn, async (req, res, next) => {
     const { chat, message } = params;
     const { roomName } = req.params;
     try {
@@ -22,6 +22,8 @@ module.exports = (params) => {
         roomName,
         socketUrl,
         roomMessages,
+        // eslint-disable-next-line no-underscore-dangle
+        usrId: req.user._id,
       });
     } catch (err) {
       return next(err);

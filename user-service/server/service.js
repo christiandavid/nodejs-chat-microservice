@@ -1,5 +1,9 @@
 const express = require('express');
+const helmet = require('helmet');
+const createError = require('http-errors');
+const bodyParser = require('body-parser');
 const routes = require('./routes');
+const UserService = require('./services/UserService');
 
 const service = express();
 
@@ -14,10 +18,19 @@ module.exports = (config) => {
     });
   }
 
+  service.use(helmet());
+  service.use(bodyParser.json());
+
+
   service.get('/favicon.ico', (req, res) => res.sendStatus(204));
   service.get('/robots.txt', (req, res) => res.sendStatus(204));
 
-  service.use('/', routes());
+  const userService = new UserService();
+
+  service.use('/', routes({ userService }));
+
+  // catch 404 and forward to error handler
+  service.use((req, res, next) => next(createError(404, 'File not found')));
 
   // eslint-disable-next-line no-unused-vars
   service.use((error, req, res, next) => {
