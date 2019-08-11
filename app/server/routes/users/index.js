@@ -3,7 +3,11 @@ const express = require('express');
 const router = express.Router();
 
 module.exports = (params, redirectIfLoggedIn) => {
-  router.get('/logout', (req, res) => res.redirect('/'));
+  router.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+      res.redirect('/');
+    });
+  });
 
   router.get('/signup', redirectIfLoggedIn, (req, res) => res.render('pages/signup', { success: req.query.success, error: req.query.error }));
 
