@@ -15,8 +15,7 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    index: { unique: true },
-    minlength: 8,
+    minlength: 3,
   },
   avatar: {
     type: String,

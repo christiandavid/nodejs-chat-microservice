@@ -9,3 +9,12 @@ form { padding: 20px; position: fixed; bottom: 0; width: 100%; padding-right: 50
   text-transform: capitalize;
 }
 #messages li.alert { margin: 10px; }
+.alert-info {
+  background-color: #d1ecf1 !important;
+}
+.alert-warning {
+  background-color: #fff3cd !important;
+}
+.alert-danger {
+  background-color: #f8d7da !important;
+}

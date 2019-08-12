@@ -35,9 +35,9 @@ module.exports = (params) => {
       const username = req.body.username.trim();
       const password = req.body.password.trim();
 
-      await userService.create(username, password);
+      const newUser = await userService.create(username, password);
 
-      return res.send({ singup: true });
+      return res.send({ singup: !newUser.error });
     } catch (err) {
       return res.status(500).send({ error: err.message });
     }
