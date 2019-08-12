@@ -5,7 +5,7 @@
   "main": "bin/run",
   "scripts": {
     "start": "nodemon bin/run | bunyan",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx mocha --exit --recursive test/"
   },
   "author": "Christian David Ibarguen <christianibarguen@gmail.com>",
   "license": "ISC",
@@ -22,8 +22,12 @@
     "nodemon": "^1.19.1"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-http": "^4.3.0",
     "eslint": "^6.1.0",
     "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.18.2"
+    "eslint-plugin-import": "^2.18.2",
+    "mocha": "^6.2.0"
   }
 }
