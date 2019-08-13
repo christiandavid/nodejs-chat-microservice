@@ -22,10 +22,10 @@ db.connect(config.db.dsn)
 
 server.on('listening', () => {
   // Adds this service to the Service Registry
-  const registerService = () => axios.put(`http://localhost:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
+  const registerService = () => axios.put(`http://${process.env.SVC_REGISTRY_HOST}:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
     .catch((err) => log.fatal(err));
   // Removes this service from the Service Registry
-  const unregisterService = () => axios.delete(`http://localhost:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
+  const unregisterService = () => axios.delete(`http://${process.env.SVC_REGISTRY_HOST}:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
     .catch((err) => log.fatal(err));
 
   registerService();

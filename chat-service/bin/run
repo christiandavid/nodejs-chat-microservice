@@ -50,7 +50,7 @@ server.on('listening', () => {
   // Namespace
   const nsp = io.of('/nsp');
   const queue = new Queue(config, nsp);
-  io.origins([`http://localhost:${process.env.APP_PORT}`]);
+  io.origins([`http://localhost:${process.env.APP_PORT}`, `http://${process.env.APP_HOST}:${process.env.APP_PORT}`]);
   nsp.on('connection', (socket) => {
     socket.on('join', (data) => {
       socket.join(data.room);
@@ -99,10 +99,10 @@ server.on('listening', () => {
   });
 
   // Adds this service to the Service Registry
-  const registerService = () => axios.put(`http://localhost:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
+  const registerService = () => axios.put(`http://${process.env.SVC_REGISTRY_HOST}:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
     .catch((err) => log.fatal(err));
   // Removes this service from the Service Registry
-  const unregisterService = () => axios.delete(`http://localhost:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
+  const unregisterService = () => axios.delete(`http://${process.env.SVC_REGISTRY_HOST}:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
     .catch((err) => log.fatal(err));
 
   registerService();

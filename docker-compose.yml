@@ -1,0 +1,141 @@
+version: '3.3'
+services:
+    serviceregistry:
+        build:
+            context: ./docker/node
+            args:
+                - NODE_VERSION=latest
+                - PROJECT_PATH=/opt/app/
+                - NODE_ENV=development
+        environment:
+            - env=development
+            - PORT=3001
+            - SERVICE_TIMEOUT=30000
+        volumes:
+            - ./service-registry:/opt/app
+        ports:
+            - "3001:3001"
+        entrypoint: entrypoint "npm run start"
+        tty: true
+
+    userservice:
+        build:
+            context: ./docker/node
+            args:
+                - NODE_VERSION=latest
+                - PROJECT_PATH=/opt/app/
+                - NODE_ENV=development
+        environment:
+            - env=development
+            - PORT=3022
+            - SVC_REGISTRY_HOST=serviceregistry
+            - SVC_REGISTRY_PORT=3001
+            - SVC_REGISTER_INTERVAL=20000
+            - DB_DSN_DEVELOPMENT=mongodb://mongo:27017/chatApp
+            - DB_DSN_PRODUCTION=mongodb://mongo:27017/chatAppProduction
+            - DB_DSN_TEST=mongodb://mongo:27017/chatAppTest
+        volumes:
+            - ./user-service:/opt/app
+        ports:
+            - "3022:3022"
+        entrypoint: entrypoint "npm run start"
+        tty: true
+
+    botservice:
+        build:
+            context: ./docker/node
+            args:
+                - NODE_VERSION=latest
+                - PROJECT_PATH=/opt/app/
+                - NODE_ENV=development
+        environment:
+            - env=development
+            - PORT=3023
+            - SVC_REGISTRY_HOST=serviceregistry
+            - SVC_REGISTRY_PORT=3001
+            - SVC_REGISTER_INTERVAL=20000
+            - DB_DSN_DEVELOPMENT=mongodb://mongo:27017/chatApp
+            - DB_DSN_PRODUCTION=mongodb://mongo:27017/chatAppProduction
+            - DB_DSN_TEST=mongodb://mongo:27017/chatAppTest
+            - RABBITMQ_HOST=amqp://rabbitmq
+        volumes:
+            - ./bot-service:/opt/app
+        ports:
+            - "3023:3023"
+        entrypoint: entrypoint "npm run start"
+        tty: true
+
+    chatservice:
+        build:
+            context: ./docker/node
+            args:
+                - NODE_VERSION=latest
+                - PROJECT_PATH=/opt/app/
+                - NODE_ENV=development
+        environment:
+            - env=development
+            - PORT=3024
+            - APP_HOST=app
+            - APP_PORT=3000
+            - SVC_REGISTRY_HOST=serviceregistry
+            - SVC_REGISTRY_PORT=3001
+            - SVC_REGISTER_INTERVAL=20000
+            - DB_DSN_DEVELOPMENT=mongodb://mongo:27017/chatApp
+            - DB_DSN_PRODUCTION=mongodb://mongo:27017/chatAppProduction
+            - DB_DSN_TEST=mongodb://mongo:27017/chatAppTest
+            - RABBITMQ_HOST=amqp://rabbitmq
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+        volumes:
+            - ./chat-service:/opt/app
+        ports:
+            - "3024:3024"
+        entrypoint: entrypoint "npm run start"
+        tty: true
+
+    app:
+        build:
+            context: ./docker/node
+            args:
+                - NODE_VERSION=latest
+                - PROJECT_PATH=/opt/app/
+                - NODE_ENV=development
+        environment:
+            - env=development
+            - PORT=3000
+            - SVC_REGISTRY_HOST=serviceregistry
+            - SVC_REGISTRY_PORT=3001
+            - REDIS_HOST=redis://redis:6379
+            - SESSION_SECRET=1FnCG-otIhXbFcEIV7QKi1-Zq5Cu0rerTnSxtUtfydYBkPjssynrAZOvthSrxcw0OUJZqgmqZq
+        volumes:
+            - ./app:/opt/app
+        ports:
+            - "3000:3000"
+        entrypoint: entrypoint "npm run start"
+        tty: true
+
+    mongo:
+        build: ./docker/mongo
+        expose:
+            - "27017"
+        volumes:
+            - ./docker/data/mongo/:/var/lib/mongodb
+
+    rabbitmq:
+        build:
+            context: ./docker/rabbitmq
+            args:
+                - MANAGEMENT=false
+                - FEDERATION=false
+                - RABBITMQ_DEFAULT_USER=guest
+                - RABBITMQ_DEFAULT_PASS=guest
+        expose:
+            - "5672"
+
+    redis:
+        build:
+            context: ./docker/redis
+        expose:
+            - "6379"
+        volumes:
+            - ./docker/data/redis:/data
