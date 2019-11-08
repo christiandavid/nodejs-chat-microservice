@@ -46,7 +46,9 @@ class UserService {
       });
       const savedUser = await user.save();
 
-      if (savedUser) { return true; }
+      if (savedUser) {
+        return true;
+      }
       throw new Error('Failed to save user for unknown reasons');
     } catch (err) {
       return { error: err.message };

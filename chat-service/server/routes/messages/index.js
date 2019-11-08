@@ -2,11 +2,13 @@ const express = require('express');
 
 const router = express.Router();
 
-module.exports = (params) => {
+module.exports = params => {
   const { messageService } = params;
 
   router.get('/:roomName', async (req, res) => {
-    const allMessages = await messageService.getLastRoomMessages(req.params.roomName);
+    const allMessages = await messageService.getLastRoomMessages(
+      req.params.roomName
+    );
     return res.send(allMessages);
   });
 

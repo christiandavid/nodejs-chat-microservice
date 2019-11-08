@@ -5,7 +5,9 @@
   "main": "bin/run",
   "scripts": {
     "start": "nodemon bin/run | bunyan",
-    "test": "npx mocha --exit --recursive test/"
+    "test": "npx mocha --exit --recursive test/",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\""
   },
   "author": "Christian David Ibarguen <christianibarguen@gmail.com>",
   "license": "ISC",
@@ -14,12 +16,12 @@
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
     "bunyan": "^1.8.12",
-    "dotenv": "^8.0.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "helmet": "^3.20.0",
+    "helmet": "^3.21.2",
     "http-errors": "^1.7.3",
-    "mongoose": "^5.6.9",
-    "nodemon": "^1.19.1"
+    "mongoose": "^5.7.8",
+    "nodemon": "^1.19.4"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -27,7 +29,12 @@
     "chai-http": "^4.3.0",
     "eslint": "^6.1.0",
     "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-node": "^4.0.0",
+    "eslint-config-prettier": "^6.5.0",
     "eslint-plugin-import": "^2.18.2",
-    "mocha": "^6.2.0"
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "mocha": "^6.2.2",
+    "prettier": "^1.18.2"
   }
 }

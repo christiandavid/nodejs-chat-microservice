@@ -3,7 +3,8 @@ const bunyan = require('bunyan');
 
 const loggers = {
   production: () => bunyan.createLogger({ name: 'production', level: 'info' }),
-  development: () => bunyan.createLogger({ name: 'development', level: 'debug' }),
+  development: () =>
+    bunyan.createLogger({ name: 'development', level: 'debug' }),
   test: () => bunyan.createLogger({ name: 'test', level: 'fatal' }),
 };
 

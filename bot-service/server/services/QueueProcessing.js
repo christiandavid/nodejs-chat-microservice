@@ -16,31 +16,32 @@ class QueueProcessing {
     const url = stockAdapter.getUrl();
     this.log.debug(`Url: ${url}, message ${message}`);
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (url !== false) {
-        this.getData(url)
-          .then((data) => {
-            if (data !== false) {
-              const values = data[0];
-              resolve(values.Date !== 'N/D' && values.Time !== 'N/D' ? values : 404);
-            }
-          });
+        this.getData(url).then(data => {
+          if (data !== false) {
+            const values = data[0];
+            resolve(
+              values.Date !== 'N/D' && values.Time !== 'N/D' ? values : 404
+            );
+          }
+        });
       } else {
-        resolve('Sorry, i can\'t understand the command');
+        resolve("Sorry, i can't understand the command");
       }
     });
   }
 
   getData(url) {
     return this.downloadCSV(url)
-      .then((response) => {
+      .then(response => {
         if (response && this.filename) {
           return this.readCSV();
         }
         return false;
       })
-      .then((data) => data)
-      .catch((err) => {
+      .then(data => data)
+      .catch(err => {
         this.log.fatal('getData: ', err);
         return false;
       });
@@ -54,8 +55,8 @@ class QueueProcessing {
       responseType: 'blob',
       timeout: 10000,
     })
-      .then((response) => {
-      // Write CSV on tmp folder
+      .then(response => {
+        // Write CSV on tmp folder
         this.filename = `/tmp/${uuidv4()}.csv`;
 
         fs.writeFileSync(this.filename, response.data);
@@ -63,7 +64,7 @@ class QueueProcessing {
 
         return true;
       })
-      .catch((err) => {
+      .catch(err => {
         this.log.fatal('downloadCSV: ', err);
         return false;
       });
@@ -71,14 +72,14 @@ class QueueProcessing {
 
   readCSV() {
     return this.readStream(this.filename)
-      .then((data) => data)
-      .catch((err) => {
+      .then(data => data)
+      .catch(err => {
         this.log.fatal('readCSV: ', err);
         return err;
       })
       .finally(() => {
         // Delete CSV File
-        fs.unlink(this.filename, (err) => {
+        fs.unlink(this.filename, err => {
           if (err) throw err;
         });
       });
@@ -90,9 +91,9 @@ class QueueProcessing {
     return new Promise((resolve, reject) => {
       const data = [];
 
-      stream.on('data', (chunk) => data.push(chunk));
+      stream.on('data', chunk => data.push(chunk));
       stream.on('end', () => resolve(data));
-      stream.on('error', (error) => reject(error));
+      stream.on('error', error => reject(error));
     });
   }
 }

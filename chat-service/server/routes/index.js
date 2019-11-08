@@ -4,7 +4,7 @@ const messagesRoute = require('./messages');
 
 const router = express.Router();
 
-module.exports = (params) => {
+module.exports = params => {
   router.use('/rooms', roomsRoute(params));
   router.use('/messages', messagesRoute(params));
 

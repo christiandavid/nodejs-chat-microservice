@@ -24,14 +24,14 @@ db.connect(config.db.dsn)
     // Should be a random port
     server.listen(process.env.PORT);
   })
-  .catch((err) => {
+  .catch(err => {
     log.fatal(err);
   });
 
 server.on('listening', () => {
   const userService = new UserService(config);
 
-  const getUserName = async (id) => {
+  const getUserName = async id => {
     try {
       const userAccount = await userService.findById(id);
       if (!userAccount || userAccount.user.error) {
@@ -45,19 +45,26 @@ server.on('listening', () => {
   };
 
   const messageService = service.get('messageService');
-  io.adapter(redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT }));
+  io.adapter(
+    redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT })
+  );
 
   // Namespace
   const nsp = io.of('/nsp');
   const queue = new Queue(config, nsp);
-  io.origins([`http://localhost:${process.env.APP_PORT}`, `http://${process.env.APP_HOST}:${process.env.APP_PORT}`]);
-  nsp.on('connection', (socket) => {
-    socket.on('join', (data) => {
+  io.origins([
+    `http://localhost:${process.env.APP_PORT}`,
+    `http://${process.env.APP_HOST}:${process.env.APP_PORT}`,
+  ]);
+  nsp.on('connection', socket => {
+    socket.on('join', data => {
       socket.join(data.room);
-      nsp.in(data.room).emit('message', { message: `New user joined ${data.room} room!` });
+      nsp
+        .in(data.room)
+        .emit('message', { message: `New user joined ${data.room} room!` });
     });
 
-    socket.on('typing', async (data) => {
+    socket.on('typing', async data => {
       log.info('User typing');
       const username = await getUserName(data.username);
       if (username) {
@@ -65,11 +72,11 @@ server.on('listening', () => {
       }
     });
 
-    socket.on('stopTyping', (data) => {
+    socket.on('stopTyping', data => {
       socket.broadcast.to(data.room).emit('notifyStopTyping');
     });
 
-    socket.on('message', async (data) => {
+    socket.on('message', async data => {
       const { user, room, msg } = data;
       if (user && room && msg) {
         const username = await getUserName(user);
@@ -83,32 +90,48 @@ server.on('listening', () => {
             queue.send(username, room, msg);
           } else {
             // Save in database
-            messageService.save(username, room, msg)
-              .then((message) => log.info(`Saved Message: ${message}`))
-              .catch((err) => log.fatal(err));
+            messageService
+              .save(username, room, msg)
+              .then(message => log.info(`Saved Message: ${message}`))
+              .catch(err => log.fatal(err));
           }
         }
       }
     });
     queue.check(nsp);
 
-    socket.on('disconnect2', (data) => {
+    socket.on('disconnect2', data => {
       log.info(`User disconnected in ${data.room} room!`);
       nsp.in(data.room).emit('message', { message: 'User disconnected' });
     });
   });
 
   // Adds this service to the Service Registry
-  const registerService = () => axios.put(`http://${process.env.SVC_REGISTRY_HOST}:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
-    .catch((err) => log.fatal(err));
+  const registerService = () =>
+    axios
+      .put(
+        `http://${process.env.SVC_REGISTRY_HOST}:${
+          process.env.SVC_REGISTRY_PORT
+        }/service/${config.name}/${config.version}/${server.address().port}`
+      )
+      .catch(err => log.fatal(err));
   // Removes this service from the Service Registry
-  const unregisterService = () => axios.delete(`http://${process.env.SVC_REGISTRY_HOST}:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
-    .catch((err) => log.fatal(err));
+  const unregisterService = () =>
+    axios
+      .delete(
+        `http://${process.env.SVC_REGISTRY_HOST}:${
+          process.env.SVC_REGISTRY_PORT
+        }/service/${config.name}/${config.version}/${server.address().port}`
+      )
+      .catch(err => log.fatal(err));
 
   registerService();
 
   // Don't ignore me I'm still alive :)
-  const interval = setInterval(registerService, process.env.SVC_REGISTER_INTERVAL);
+  const interval = setInterval(
+    registerService,
+    process.env.SVC_REGISTER_INTERVAL
+  );
   const cleanup = async () => {
     let clean = false;
     if (!clean) {
@@ -117,23 +140,15 @@ server.on('listening', () => {
       await unregisterService();
     }
   };
-
-  process.on('uncaughtException', async () => {
+  const shutdown = async () => {
     await cleanup();
-    process.exit(0);
-  });
-
-  process.on('SIGINT', async () => {
-    await cleanup();
-    process.exit(0);
-  });
-
-  process.on('SIGTERM', async () => {
-    await cleanup();
-    process.exit(0);
-  });
+    process.exitCode = 1;
+  };
+  process.on('uncaughtException', shutdown);
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 
   log.info(
-    `Listening on port ${server.address().port} in ${service.get('env')} mode.`,
+    `Listening on port ${server.address().port} in ${service.get('env')} mode.`
   );
 });

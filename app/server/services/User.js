@@ -49,7 +49,9 @@ class UserService {
   }
 
   async getService(servicename) {
-    const svResponse = await axios.get(`${this.serviceRegistryUrl}/get/${servicename}/${this.serviceVersionId}`);
+    const svResponse = await axios.get(
+      `${this.serviceRegistryUrl}/get/${servicename}/${this.serviceVersionId}`
+    );
     const response = svResponse.data;
     return response;
   }

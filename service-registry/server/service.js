@@ -4,7 +4,7 @@ const ServiceRegistry = require('./lib/ServiceRegistry');
 
 const service = express();
 
-module.exports = (config) => {
+module.exports = config => {
   const log = config.log();
   const serviceRegistry = new ServiceRegistry(config);
 
@@ -30,23 +30,41 @@ module.exports = (config) => {
     return res.json(findService);
   });
 
-  service.put('/service/:serviceName/:serviceVersion/:servicePort', (req, res) => {
-    const { serviceName, serviceVersion, servicePort } = req.params;
-    const serviceip = req.connection.remoteAddress.includes('::') ? `[${req.connection.remoteAddress}]` : req.connection.remoteAddress;
-    const serviceKey = serviceRegistry
-      .add(serviceName, serviceVersion, serviceip, servicePort);
+  service.put(
+    '/service/:serviceName/:serviceVersion/:servicePort',
+    (req, res) => {
+      const { serviceName, serviceVersion, servicePort } = req.params;
+      const serviceip = req.connection.remoteAddress.includes('::')
+        ? `[${req.connection.remoteAddress}]`
+        : req.connection.remoteAddress;
+      const serviceKey = serviceRegistry.add(
+        serviceName,
+        serviceVersion,
+        serviceip,
+        servicePort
+      );
 
-    return res.json({ result: serviceKey });
-  });
+      return res.json({ result: serviceKey });
+    }
+  );
 
-  service.delete('/service/:serviceName/:serviceVersion/:servicePort', (req, res) => {
-    const { serviceName, serviceVersion, servicePort } = req.params;
-    const serviceip = req.connection.remoteAddress.includes('::') ? `[${req.connection.remoteAddress}]` : req.connection.remoteAddress;
-    const serviceKey = serviceRegistry
-      .remove(serviceName, serviceVersion, serviceip, servicePort);
+  service.delete(
+    '/service/:serviceName/:serviceVersion/:servicePort',
+    (req, res) => {
+      const { serviceName, serviceVersion, servicePort } = req.params;
+      const serviceip = req.connection.remoteAddress.includes('::')
+        ? `[${req.connection.remoteAddress}]`
+        : req.connection.remoteAddress;
+      const serviceKey = serviceRegistry.remove(
+        serviceName,
+        serviceVersion,
+        serviceip,
+        servicePort
+      );
 
-    return res.json({ result: serviceKey });
-  });
+      return res.json({ result: serviceKey });
+    }
+  );
 
   // eslint-disable-next-line no-unused-vars
   service.use((error, req, res, next) => {

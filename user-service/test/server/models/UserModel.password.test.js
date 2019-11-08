@@ -21,7 +21,9 @@ describe('The User DB Schema', async () => {
   it('Should store the password encrypted', async () => {
     const user = new UserModel(helper.validUser);
     await user.save();
-    const foundUser = await UserModel.findOne({ username: helper.validUser.username }).exec();
+    const foundUser = await UserModel.findOne({
+      username: helper.validUser.username,
+    }).exec();
     expect(foundUser.password).to.exist;
     expect(foundUser.password).to.not.equal(helper.validUser.password);
   });
@@ -29,12 +31,16 @@ describe('The User DB Schema', async () => {
   it('Should be able to correctly validate a password', async () => {
     const user = new UserModel(helper.validUser);
     await user.save();
-    const foundUser = await UserModel.findOne({ username: helper.validUser.username }).exec();
+    const foundUser = await UserModel.findOne({
+      username: helper.validUser.username,
+    }).exec();
     expect(foundUser).to.be.not.null;
     expect(foundUser.password).to.exist;
     const compResInvalid = await foundUser.comparePassword('ImBatman');
     expect(compResInvalid).to.be.false;
-    const compresValid = await foundUser.comparePassword(helper.validUser.password);
+    const compresValid = await foundUser.comparePassword(
+      helper.validUser.password
+    );
     expect(compresValid).to.be.true;
   });
 });

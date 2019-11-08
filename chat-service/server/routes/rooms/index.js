@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-module.exports = (params) => {
+module.exports = params => {
   const { roomService } = params;
 
   router.get('/', async (req, res) => {

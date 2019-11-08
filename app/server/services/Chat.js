@@ -33,7 +33,10 @@ class ChatService {
 
   async callService(requestOptions) {
     const parsedUrl = url.parse(requestOptions.url);
-    const cacheKey = crypto.createHash('md5').update(requestOptions.method + parsedUrl.path).digest('hex');
+    const cacheKey = crypto
+      .createHash('md5')
+      .update(requestOptions.method + parsedUrl.path)
+      .digest('hex');
 
     const result = await this.circuitBreaker.callService(requestOptions);
 
@@ -51,7 +54,9 @@ class ChatService {
   }
 
   async getService(servicename) {
-    const svResponse = await axios.get(`${this.serviceRegistryUrl}/get/${servicename}/${this.serviceVersionId}`);
+    const svResponse = await axios.get(
+      `${this.serviceRegistryUrl}/get/${servicename}/${this.serviceVersionId}`
+    );
     const response = svResponse.data;
     return response;
   }

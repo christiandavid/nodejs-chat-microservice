@@ -17,6 +17,7 @@ All Microservices communicate via **service-registry**, **Redis** and **RabbitMQ
 For the execution of this project it is necessary to have Docker installed, and share the folder where the project is in the Docker configuration.
 
 [Docker for Mac](https://docs.docker.com/docker-for-mac/install/)
+
 [Docker for Windows](https://docs.docker.com/docker-for-windows/install/)
 
 ### Installing

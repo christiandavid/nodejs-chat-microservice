@@ -25,7 +25,7 @@ function createDefaultRooms() {
   RoomModel.find({}, (err, rooms) => {
     if (err) return err;
     if (rooms.length === 0) {
-      defaultRooms.forEach((item) => {
+      defaultRooms.forEach(item => {
         const newRoom = new RoomModel();
         newRoom.name = item.name;
         newRoom.save((errSave, room) => {

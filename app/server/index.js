@@ -4,6 +4,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
+const redis = require('redis');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const conf = require('./config');
@@ -45,28 +46,34 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/favicon.ico', (req, res) => res.sendStatus(204));
 app.use(cookieParser());
 
+const client = redis.createClient({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+});
+client.on('error', log.error);
+
 if (app.get('env') === 'production') {
   app.set('trust proxy', 'loopback');
-  app.use(session({
-    secret: process.env.SESSION_SECRET,
-    name: 'sessionId',
-    proxy: true,
-    cookie: { secure: true },
-    resave: true,
-    saveUninitialized: false,
-    store: new RedisStore({
-      url: process.env.REDIS_HOST,
-    }),
-  }));
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET,
+      name: 'sessionId',
+      proxy: true,
+      cookie: { secure: true },
+      resave: true,
+      saveUninitialized: false,
+      store: new RedisStore({ client }),
+    })
+  );
 } else {
-  app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: false,
-    store: new RedisStore({
-      url: process.env.REDIS_HOST,
-    }),
-  }));
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET,
+      resave: true,
+      saveUninitialized: false,
+      store: new RedisStore({ client }),
+    })
+  );
 }
 
 app.use(auth.initialize);
@@ -87,10 +94,11 @@ app.use((err, req, res, next) => {
   return res.render('error');
 });
 
-
 // eslint-disable-next-line func-names
-app.listen(process.env.PORT, function () {
-  log.info(`Listening on port ${this.address().port} in ${app.get('env')} mode.`);
+app.listen(process.env.PORT, function() {
+  log.info(
+    `Listening on port ${this.address().port} in ${app.get('env')} mode.`
+  );
 });
 
 module.export = app;

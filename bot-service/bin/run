@@ -14,16 +14,31 @@ server.listen(process.env.PORT);
 
 server.on('listening', () => {
   // Adds this service to the Service Registry
-  const registerService = () => axios.put(`http://${process.env.SVC_REGISTRY_HOST}:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
-    .catch((err) => log.fatal(err));
+  const registerService = () =>
+    axios
+      .put(
+        `http://${process.env.SVC_REGISTRY_HOST}:${
+          process.env.SVC_REGISTRY_PORT
+        }/service/${config.name}/${config.version}/${server.address().port}`
+      )
+      .catch(err => log.fatal(err));
   // Removes this service from the Service Registry
-  const unregisterService = () => axios.delete(`http://${process.env.SVC_REGISTRY_HOST}:${process.env.SVC_REGISTRY_PORT}/service/${config.name}/${config.version}/${server.address().port}`)
-    .catch((err) => log.fatal(err));
+  const unregisterService = () =>
+    axios
+      .delete(
+        `http://${process.env.SVC_REGISTRY_HOST}:${
+          process.env.SVC_REGISTRY_PORT
+        }/service/${config.name}/${config.version}/${server.address().port}`
+      )
+      .catch(err => log.fatal(err));
 
   registerService();
 
   // Don't ignore me I'm still alive :)
-  const interval = setInterval(registerService, process.env.SVC_REGISTER_INTERVAL);
+  const interval = setInterval(
+    registerService,
+    process.env.SVC_REGISTER_INTERVAL
+  );
   const cleanup = async () => {
     let clean = false;
     if (!clean) {
@@ -37,22 +52,15 @@ server.on('listening', () => {
   const queue = new Queue(config, queueProcessing);
   queue.check();
 
-  process.on('uncaughtException', async () => {
+  const shutdown = async () => {
     await cleanup();
-    process.exit(0);
-  });
-
-  process.on('SIGINT', async () => {
-    await cleanup();
-    process.exit(0);
-  });
-
-  process.on('SIGTERM', async () => {
-    await cleanup();
-    process.exit(0);
-  });
+    process.exitCode = 1;
+  };
+  process.on('uncaughtException', shutdown);
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 
   log.info(
-    `Listening on port ${server.address().port} in ${service.get('env')} mode.`,
+    `Listening on port ${server.address().port} in ${service.get('env')} mode.`
   );
 });

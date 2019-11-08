@@ -44,13 +44,15 @@ module.exports.after = async () => {
 };
 
 // Local helper function that creates a user
-module.exports.createUser = async (agent, user) => agent
-  .post('/users/signup')
-  .set('content-type', 'application/json')
-  .send(user);
+module.exports.createUser = async (agent, user) =>
+  agent
+    .post('/users/signup')
+    .set('content-type', 'application/json')
+    .send(user);
 
 // Local helper function that logs a user in
-module.exports.loginUser = async (agent, username, password) => agent
-  .post('/users/signin')
-  .set('content-type', 'application/json')
-  .send({ username, password });
+module.exports.loginUser = async (agent, username, password) =>
+  agent
+    .post('/users/signin')
+    .set('content-type', 'application/json')
+    .send({ username, password });

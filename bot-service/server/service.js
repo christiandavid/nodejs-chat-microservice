@@ -2,7 +2,7 @@ const express = require('express');
 
 const service = express();
 
-module.exports = (config) => {
+module.exports = config => {
   const log = config.log();
 
   // Add a request logging middleware in development mode

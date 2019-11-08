@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const http = require('http');
 
 const config = require('../config')[process.env.NODE_ENV || 'development'];
@@ -11,6 +12,6 @@ server.listen(process.env.PORT);
 
 server.on('listening', () => {
   log.info(
-    `Listening on port ${server.address().port} in ${service.get('env')} mode.`,
+    `Listening on port ${server.address().port} in ${service.get('env')} mode.`
   );
 });

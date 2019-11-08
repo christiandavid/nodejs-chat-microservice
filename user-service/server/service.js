@@ -7,7 +7,7 @@ const UserService = require('./services/UserService');
 
 const service = express();
 
-module.exports = (config) => {
+module.exports = config => {
   const log = config.log();
 
   // Add a request logging middleware in development mode
@@ -20,7 +20,6 @@ module.exports = (config) => {
 
   service.use(helmet());
   service.use(bodyParser.json());
-
 
   service.get('/favicon.ico', (req, res) => res.sendStatus(204));
   service.get('/robots.txt', (req, res) => res.sendStatus(204));

@@ -29,7 +29,9 @@ describe('The User DB Schema', async () => {
   it('Should find a user', async () => {
     const user = new UserModel(helper.validUser);
     await user.save();
-    const foundUser = await UserModel.findOne({ username: helper.validUser.username }).exec();
+    const foundUser = await UserModel.findOne({
+      username: helper.validUser.username,
+    }).exec();
     expect(foundUser.username).to.equal('christian');
   });
 });
