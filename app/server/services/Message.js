@@ -1,4 +1,4 @@
-const url = require('url');
+const { URL } = require('url');
 const axios = require('axios');
 const crypto = require('crypto');
 
@@ -19,10 +19,10 @@ class MessageService {
   }
 
   async callService(requestOptions) {
-    const parsedUrl = url.parse(requestOptions.url);
+    const parsedUrl = new URL(requestOptions.url);
     const cacheKey = crypto
       .createHash('md5')
-      .update(requestOptions.method + parsedUrl.path)
+      .update(requestOptions.method + parsedUrl.pathname)
       .digest('hex');
 
     const result = await this.circuitBreaker.callService(requestOptions);

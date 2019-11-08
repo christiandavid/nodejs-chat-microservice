@@ -1,5 +1,5 @@
 const express = require('express');
-const url = require('url');
+const { URL } = require('url');
 
 const router = express.Router();
 
@@ -13,8 +13,8 @@ module.exports = (params, redirectIfNotLoggedIn) => {
         return res.redirect('/rooms?error=true');
       }
 
-      const { port, path } = url.parse(await chat.getChatUrl());
-      const socketUrl = `http://localhost:${port}${path}`;
+      const { port, pathname } = new URL(await chat.getChatUrl());
+      const socketUrl = `http://localhost:${port}${pathname}`;
 
       const roomMessages = await message.getLastRoomMessages(roomName);
 

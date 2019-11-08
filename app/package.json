@@ -4,7 +4,7 @@
   "description": "This is the main Chat App",
   "main": "server/index.js",
   "scripts": {
-    "start": "nodemon ./server --exec babel-node -e js | bunyan",
+    "start": "nodemon --exec babel-node ./server | bunyan",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{js,jsx,json,md}\""
@@ -30,9 +30,10 @@
     "redis": "^2.8.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-0": "^6.24.1",
+    "@babel/cli": "^7.7.0",
+    "@babel/core": "^7.7.2",
+    "@babel/node": "^7.7.0",
+    "@babel/preset-env": "^7.7.1",
     "eslint": "^6.6.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-node": "^4.0.0",
