@@ -4,7 +4,7 @@ const UserModel = require('../models/UserModel');
 class UserService {
   async getUserById(id) {
     try {
-      const user = await await UserModel.findById(id).exec();
+      const user = await UserModel.findById(id).exec();
       if (!user) {
         return false;
       }

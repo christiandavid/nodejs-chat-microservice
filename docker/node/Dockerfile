@@ -1,7 +1,7 @@
-FROM node:12
+FROM node:13
 
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - &&\
-	apt-get update &&\
+RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - &&\
+    apt-get update &&\
     apt-get install -y npm &&\
     npm install -g n
 

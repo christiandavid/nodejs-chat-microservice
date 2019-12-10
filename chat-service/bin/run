@@ -76,12 +76,22 @@ server.on('listening', () => {
       socket.broadcast.to(data.room).emit('notifyStopTyping');
     });
 
+    const replaceEmoji = msg => {
+      const toEmoji = { ';)': 'IMAGEN GUIÑO', ':)': 'IMAGEN SMILE' };
+
+      return msg.replace(/[;)-:)]+/g, found =>
+        toEmoji[found] ? toEmoji[found] : found
+      );
+    };
+
     socket.on('message', async data => {
-      const { user, room, msg } = data;
+      const { user, room } = data;
+      let { msg } = data;
       if (user && room && msg) {
         const username = await getUserName(user);
         if (username) {
-          log.info(`Message: ${msg}`);
+          msg = replaceEmoji(msg);
+          log.info(`Message replaced: ${msg}`);
           nsp.in(data.room).emit('message', { username, message: msg });
 
           // Detect * command

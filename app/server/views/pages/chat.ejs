@@ -1,105 +1,110 @@
-
 <!doctype html>
 <html lang="en">
-  <head>
-    <% include ../partials/head %>
-    <link href="/css/chat.css" rel="stylesheet">
-    <title><%= locals.title %> - Chat</title>
-  </head>
-  <body>
-    <% include ../partials/menu %>
-    <div class="container-fluid">
-      <div class="row">
-        <% const colors = ['primary', 'secondary', 'warning', 'dark']; %>
-        <div class="room">Welcome to 
-          <span class="badge roombadge badge-<%= colors[Math.floor(Math.random() * colors.length)] %>"><%= roomName %></span> room!
-        </div>
-        <div id="feedback"></div>
-        <ul id="messages">
-          <% roomMessages && roomMessages.forEach((msg) => { %>
-            <li><small class="text-muted"><%= msg.user %>:</small> <%= msg.message %></li>
-          <% }); %>
-        </ul>
+
+<head>
+  <% include ../partials/head %>
+  <link href="/css/chat.css" rel="stylesheet">
+  <title><%= locals.title %> - Chat</title>
+</head>
+
+<body>
+  <% include ../partials/menu %>
+  <div class="container-fluid">
+    <div class="row">
+      <% const colors = ['primary', 'secondary', 'warning', 'dark']; %>
+      <div class="room">Welcome to
+        <span
+          class="badge roombadge badge-<%= colors[Math.floor(Math.random() * colors.length)] %>"><%= roomName %></span>
+        room!
       </div>
-      <div class="row">
-          <div class="col-lg-6">
-            <form action="">
-              <div class="input-group">
-                  <input id="m" autocomplete="off" type="text" class="form-control" placeholder="Message..." aria-label="Message...">
-                  <span class="input-group-btn">
-                    <button class="btn btn-secondary" type="submit">Send</button>
-                  </span>
-                </div>
-            </form>
-          </div>
-        </div>
+      <div id="feedback"></div>
+      <ul id="messages">
+        <% roomMessages && roomMessages.forEach((msg) => { %>
+        <li><small class="text-muted"><%= msg.user %>:</small> <%= msg.message %></li>
+        <% }); %>
+      </ul>
     </div>
-    <% include ../partials/scripts %>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
-    <script>
-      let timeout;
-      const user = '<%= usrId %>';
-      const room = '<%= roomName %>';
-      const socket = io('<%= socketUrl %>');
-      function scroll() {
-        var div = $("#messages");
-        div.scrollTop(div.prop('scrollHeight'));
+    <div class="row">
+      <div class="col-lg-6">
+        <form action="">
+          <div class="input-group">
+            <input id="m" autocomplete="off" type="text" class="form-control" placeholder="Message..."
+              aria-label="Message...">
+            <span class="input-group-btn">
+              <button class="btn btn-secondary" type="submit">Send</button>
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <% include ../partials/scripts %>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+  <script>
+    let timeout;
+    const user = '<%= usrId %>';
+    const room = '<%= roomName %>';
+    const socket = io('<%= socketUrl %>');
+    function scroll() {
+      var div = $("#messages");
+      div.scrollTop(div.prop('scrollHeight'));
+    }
+    $("form").submit(() => {
+      let msg = $("#m").val();
+
+      clearTimeout(timeout);
+      socket.emit("stopTyping", "");
+      socket.emit("message", { msg, room, user });
+
+      $("#m").val("");
+      return false;
+    });
+
+    $("#m").keypress((e) => {
+      if (e.keyCode != 13) {
+        socket.emit("typing", { username: user, room });
       }
-      $("form").submit(() => {
-        let msg = $("#m").val();
+    }).keyup(() => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        socket.emit("stopTyping", { room });
+      }, 2000);
+    });
+    window.onbeforeunload = function () {
+      socket.emit("disconnect2", { room });
+    }
 
-        clearTimeout(timeout);
-        socket.emit("stopTyping", "");
-        socket.emit("message", { msg, room, user });
-        
-        $("#m").val("");
-        return false;
-      });
-
-      $("#m").keypress((e) => {
-        if (e.keyCode != 13)  {
-          socket.emit("typing", { username: user, room });
-        }
-      }).keyup(() => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          socket.emit("stopTyping", { room });
-        }, 2000);
-      });
-      window.onbeforeunload = function () {
-        socket.emit("disconnect2", { room });
+    socket.on("connect", () => {
+      socket.emit("join", { room });
+    });
+    socket.on("message", (msg) => {
+      if (msg.username) {
+        $("#messages").append(`<li><small class="text-muted">${msg.username}:</small> ${msg.message}`);
+      } else {
+        $("#messages").append($('<li>').text(msg.message));
       }
+      scroll();
+    });
+    socket.on("botreply", (msg) => {
+      $("#messages").append(`<li class="alert alert-info" role="alert"><small class="text-muted">${msg.username}:</small> ${msg.message}`);
+      scroll();
+    });
+    socket.on("botnotcommand", (msg) => {
+      $("#messages").append(`<li class="alert alert-danger" role="alert"><small class="text-muted">${msg.username}:</small> ${msg.message}`);
+      scroll();
+    });
+    socket.on("botnotfound", (msg) => {
+      $("#messages").append(`<li class="alert alert-warning" role="alert"><small class="text-muted">${msg.username}:</small> ${msg.message}`);
+      scroll();
+    });
 
-      socket.on("connect", () => {
-        socket.emit("join", { room });
-      });
-      socket.on("message", (msg) => {
-        if (msg.username) {
-          $("#messages").append(`<li><small class="text-muted">${msg.username}:</small> ${msg.message}`);
-        } else {
-          $("#messages").append($('<li>').text(msg.message));
-        }
-        scroll();
-      });
-      socket.on("botreply", (msg) => {
-        $("#messages").append(`<li class="alert alert-info" role="alert"><small class="text-muted">${msg.username}:</small> ${msg.message}`);
-        scroll();
-      });
-      socket.on("botnotcommand", (msg) => {
-        $("#messages").append(`<li class="alert alert-danger" role="alert"><small class="text-muted">${msg.username}:</small> ${msg.message}`);
-        scroll();
-      });
-      socket.on("botnotfound", (msg) => {
-        $("#messages").append(`<li class="alert alert-warning" role="alert"><small class="text-muted">${msg.username}:</small> ${msg.message}`);
-        scroll();
-      });
-
-      socket.on("typing", (data) => {
-        $("#feedback").html(`<p>${data.username} is typing a message...</p>`);
-      });
-      socket.on("notifyStopTyping", () =>  {
-        $("#feedback").html("");
-      });
-    </script>
+    socket.on("typing", (data) => {
+      $("#feedback").html(`<p>${data.username} is typing a message...</p>`);
+    });
+    socket.on("notifyStopTyping", () => {
+      $("#feedback").html("");
+    });
+  </script>
 </body>
+
 </html>

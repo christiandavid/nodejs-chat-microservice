@@ -1,47 +1,64 @@
-
 <!doctype html>
 <html lang="en">
-  <head>
-    <% include ../partials/head %>
-    <title><%= locals.title %> Rooms</title>
-    <link href="/css/rooms.css" rel="stylesheet">
-  </head>
-  <body>
-    <% include ../partials/menu %>
-    <div class="room-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-      <% if (error) { %>
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Error!</strong> That room does not exist.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <% } %>
-      <h1 class="display-4">Rooms</h1>
-      <p class="lead">Select a Room to enter our chat.</p>
+
+<head>
+  <% include ../partials/head %>
+  <title><%= locals.title %> Rooms</title>
+  <link href="/css/rooms.css" rel="stylesheet">
+</head>
+
+<body>
+  <% include ../partials/menu %>
+  <div class="room-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <% if (error) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <strong>Error!</strong> That room does not exist.
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </div>
-    <div class="container">
-      <div class="card-deck mb-3 text-center">
-        <% const colors = ['primary', 'secondary', 'warning', 'dark']; %>
-        <% rooms && rooms.forEach((room) => { %>
-          <% let roomName = room.name.charAt(0).toUpperCase() + room.name.slice(1); %>
-          <div class="card mb-4 shadow-sm">
-            <div class="card-header">
-              <h4 class="my-0 font-weight-normal">Chat <%= roomName %></h4>
-            </div>
-            <div class="card-body">
-              <h1 class="card-title pricing-card-title">
-                <small class="text-muted">Talk about</small>
-                <%= roomName %>
-              </h1>
-              <a href="/chat/<%= room.name %>" class="btn btn-lg btn-block btn-<%= colors[Math.floor(Math.random() * colors.length)] %>">Let's talk</a>
-            </div>
-          </div>
-        <% }); %>
+    <% } %>
+    <h1 class="display-4">Rooms</h1>
+    <p class="lead">Select a Room to enter our chat.</p>
+  </div>
+  <div class="container">
+    <div class="card-deck mb-3 text-center">
+      <% const colors = ['primary', 'secondary', 'warning', 'dark']; %>
+      <% rooms && rooms.forEach((room) => { %>
+      <% let roomName = room.name.charAt(0).toUpperCase() + room.name.slice(1); %>
+      <!-- <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+          <h4 class="my-0 font-weight-normal">Chat <%= roomName %></h4>
+        </div>
+        <div class="card-body cardcolumn">
+          <h1 class="card-title pricing-card-title">
+            <small class="text-muted">Talk about</small>
+            <p><%= roomName %></p>
+          </h1>
+          <a href="/chat/<%= room.name %>" style="align-self: flex-end;"
+            class="btn btn-lg btn-block btn-<%= colors[Math.floor(Math.random() * colors.length)] %>">Let's talk</a>
+        </div>
+      </div> -->
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+          <h4 class="my-0 font-weight-normal">Chat <%= roomName %></h4>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h1 class="card-title pricing-card-title">
+            <small class="text-muted">Talk about</small>
+            <%= roomName %>
+          </h1>
+          <a href="/chat/<%= room.name %>"
+            class="btn btn-lg btn-block btn-<%= colors[Math.floor(Math.random() * colors.length)] %> mt-auto">Let's
+            talk</a>
+        </div>
       </div>
-      <footer class="pt-4 my-md-5 pt-md-5 border-top">
-        <% include ../partials/footer %>
-      </footer>
+      <% }); %>
     </div>
+    <footer class="pt-4 my-md-5 pt-md-5 border-top">
+      <% include ../partials/footer %>
+    </footer>
+  </div>
 </body>
+
 </html>
