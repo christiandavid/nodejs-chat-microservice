@@ -22,7 +22,7 @@
     "http-errors": "^1.7.3",
     "mongoose": "^5.7.8",
     "nodemon": "^1.19.4",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.5.0",
     "socket.io-redis": "^5.2.0"
   },
   "devDependencies": {
