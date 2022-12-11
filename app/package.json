@@ -19,7 +19,7 @@
     "cookie-parser": "^1.4.4",
     "dotenv": "^8.2.0",
     "ejs": "^2.7.1",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-session": "^1.17.0",
     "helmet": "^3.21.2",
     "http-errors": "^1.7.3",
